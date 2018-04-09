@@ -5,12 +5,39 @@
 
 //Dependencies 
 var http = require('http');
+var https = require('https');
 var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
 var config = require('./config');
+var fs = require('fs');
 
-// the server should respond to all requests with a string
-var server = http.createServer(function(req,res){
+// Instantiating the HTTP server
+var httpServer = http.createServer(function(req,res){
+  unifiedServer(req,res);
+});
+
+// Start httpServer from port in config
+httpServer.listen(config.httpPort,function(){
+  console.log('The server is listening on port '+config.httpPort+' in ::'+config.envName.toUpperCase()+':: mode');
+});
+
+// Instantiate the HTTPs server
+var httpsServerOptions = {
+  'key': fs.readFileSync('./https/key.pem'),
+  'cert': fs.readFileSync('./https/cert.pem')
+};
+
+var httpsServer = https.createServer(httpsServerOptions,function(req,res){
+  unifiedServer(req,res);
+});
+
+// Start the HTTPS server
+httpsServer.listen(config.httpsPort,function(){
+  console.log('The server is listening on port '+config.httpsPort+' in ::'+config.envName.toUpperCase()+':: mode');
+});
+
+// All the server logic for both the http and https server
+var unifiedServer = function(req, res){
 
   //Get the url and parse it 
   var parsedUrl = url.parse(req.url,true); 
@@ -37,7 +64,7 @@ var server = http.createServer(function(req,res){
 
   req.on('end', function(){
     buffer += decoder.end();
-    
+
     // Choose the handler this request should go to, if one is not found use the not found handler
     var chosenHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound; 
 
@@ -72,12 +99,8 @@ var server = http.createServer(function(req,res){
     // Log the request path
     console.log('Request received with this payload:', buffer,'|headers:', headers);
   });
-});
+};
 
-// Start server from port in config
-server.listen(config.port,function(){
-  console.log('The server is listening on port '+config.port+' in ::'+config.envName.toUpperCase()+':: mode');
-});
 // Define the handlers
 var handlers = {};
 
@@ -94,3 +117,5 @@ handlers.notFound = function(data, callback){
 var router = {
   'sample' : handlers.sample
 }
+
+
