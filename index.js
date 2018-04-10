@@ -30,7 +30,6 @@ var httpsServerOptions = {
 var httpsServer = https.createServer(httpsServerOptions,function(req,res){
   unifiedServer(req,res);
 });
-
 // Start the HTTPS server
 httpsServer.listen(config.httpsPort,function(){
   console.log('The server is listening on port '+config.httpsPort+' in ::'+config.envName.toUpperCase()+':: mode');
@@ -97,25 +96,25 @@ var unifiedServer = function(req, res){
       console.log('Returning this response: ', statusCode, payloadString);
     });
     // Log the request path
-    console.log('Request received with this payload:', buffer,'|headers:', headers);
+    //console.log('Request received with this payload:', buffer,'|headers:', headers);
   });
 };
 
 // Define the handlers
 var handlers = {};
 
-// Sample handler
-handlers.sample = function(data, callback){
-  // Callback a http status code, and a payload object
-  callback(406,{'name': 'sample handler'});
-};
+// Ping handler
+handlers.ping = function(data, callback){
+  callback(200);
+}
 
 handlers.notFound = function(data, callback){
   callback(404);
 }
+
 // Define a request router
 var router = {
-  'sample' : handlers.sample
+  'ping': handlers.ping,  
 }
 
 
