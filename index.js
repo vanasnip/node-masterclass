@@ -3,7 +3,7 @@
  *
  */
 
-//Dependencies 
+//Dependencies
 var http = require('http');
 var https = require('https');
 var url = require('url');
@@ -107,5 +107,6 @@ var router = {
   'ping': handlers.ping,  
   'users': handlers.users,
   'tokens': handlers.tokens,
+  'checks' : handlers.checks,
 }
 
